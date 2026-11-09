@@ -9,6 +9,8 @@ Ui.Panel {
     ipcTarget: "krysto.zephir"
     implicitWidth: button.implicitWidth
     implicitHeight: button.implicitHeight
+    property bool spinning: true
+    property int speed: 2
     property int fanRpm: -1
     property real temperature: NaN
     function refreshSensors() {
@@ -77,7 +79,7 @@ Ui.Panel {
         open: root.opened
         focusTarget: panel.loadedContent
         contentWidth: Commons.Style.space(290)
-        contentHeight: Commons.Style.space(470)
+        contentHeight: Commons.Style.space(510)
         content: FocusScope {
             anchors.fill: parent
             Keys.onEscapePressed: root.close()
@@ -204,10 +206,10 @@ Ui.Panel {
                             NumberAnimation on rotation {
                                 from: 0
                                 to: 360
-                                duration: Commons.Style.duration(root.fanRpm > 0 ? Math.max(1, Math.round(60000 / root.fanRpm)) : 1000)
+                                duration: Commons.Style.duration(root.speed === 1 ? 360 : root.speed === 2 ? 240 : 150)
                                 loops: Animation.Infinite
                                 easing.type: Easing.Linear
-                                running: root.opened && root.fanRpm > 0 && Commons.Style.duration(160) > 0
+                                running: root.opened && root.spinning && Commons.Style.duration(160) > 0
                             }
                         }
                         Repeater {
@@ -254,6 +256,23 @@ Ui.Panel {
                                 font.bold: true
                                 color: Commons.Color.background
                             }
+                        }
+                    }
+                }
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: Commons.Style.space(6)
+                    Ui.Button {
+                        text: strings.t(root.spinning ? "pause" : "start")
+                        onClicked: root.spinning = !root.spinning
+                    }
+                    Repeater {
+                        model: 3
+                        Ui.Button {
+                            required property int index
+                            text: Commons.I18n.formatNumber(index + 1)
+                            selected: root.speed === index + 1
+                            onClicked: { root.speed = index + 1; root.spinning = true }
                         }
                     }
                 }

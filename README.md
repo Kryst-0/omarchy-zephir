@@ -4,11 +4,11 @@ Six themed fan designs for the Omarchy bar, with live Linux fan RPM, CPU tempera
 
 ## Hardware readings
 
-Zephir 1.4 reads `/sys/class/hwmon` every two seconds while its panel is open, using Python 3 (standard library only). It displays the fastest exposed fan and prefers CPU temperatures (`coretemp`, `k10temp`, `zenpower`, `cpu_thermal`), then ACPI, then other available temperatures. Within the preferred sensor group it displays the highest reading. Temperature and RPM may come from different devices.
+Zephir 1.4.1 reads `/sys/class/hwmon` every two seconds while its panel is open, using Python 3 (standard library only). It displays the fastest exposed fan and prefers CPU temperatures (`coretemp`, `k10temp`, `zenpower`, `cpu_thermal`), then ACPI, then other available temperatures. Within the preferred sensor group it displays the highest reading. Temperature and RPM may come from different devices.
 
-The rotor follows the measured RPM (one revolution takes `60000 / RPM` milliseconds, rounded to the nearest millisecond). Fast rotation can appear slower or stationary because of display refresh sampling. Omarchy's disabled animations setting is respected.
+The rotor has three manual animation speeds and a pause/start button. It runs independently of the hardware readings, including on laptops that do not expose fan RPM. Omarchy's disabled animations setting is respected.
 
-There are no manual speed controls. **Zephir only reads sensors; it does not change the physical fan speed.** Zero RPM stops the rotor. Missing RPM displays “RPM unavailable” and leaves the rotor still; missing temperatures display “unavailable”. Many laptops, including some HP models, expose temperatures without exposing fan RPM. Zephir never estimates RPM from temperature or loads hardware drivers.
+**Zephir only reads sensors; its speed buttons control the animation, never the physical fan.** Missing RPM displays “RPM unavailable”; missing temperatures display “unavailable”. Many laptops, including some HP models, expose temperatures without exposing fan RPM. Zephir never estimates RPM from temperature or loads hardware drivers.
 
 No network requests, account, extra Python packages, or persistent background service. Requires a recent Omarchy Quickshell shell with `qs.Ui` and Python 3.
 

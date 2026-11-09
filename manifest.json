@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "id": "krysto.zephir",
   "name": "Zephir",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "author": "Krysto",
   "license": "MIT",
-  "description": "Six animated fans synchronized to Linux fan RPM, with live temperature and rotating captions.",
+  "description": "Six animated fans with three manual speeds, live temperature, fan RPM and rotating captions.",
   "kinds": [
     "bar-widget"
   ],
