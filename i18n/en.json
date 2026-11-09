@@ -16,5 +16,9 @@
   "joke.next": "Another joke",
   "pedestal": "Pedestal",
   "ceiling": "Ceiling",
-  "turbine": "Turbo"
+  "turbine": "Turbo",
+  "sensor.temperature": "Temperature: %1",
+  "sensor.unavailable": "unavailable",
+  "sensor.rpm": "Fan: %1 RPM",
+  "sensor.noRpm": "RPM unavailable"
 }

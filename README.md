@@ -1,15 +1,23 @@
 # Zephir
 
-An animated desk fan for the Omarchy bar.
+Six themed fan designs for the Omarchy bar, with live Linux fan RPM, CPU temperature and rotating English/Italian captions. Click the icon to open; use the arrows to change the model. Captions scroll upward every five seconds while the panel is open.
 
-Choose desk, retro, industrial, pedestal, ceiling or turbine designs, adjust the speed and enjoy rotating captions. The panel follows your Omarchy theme and language (English and Italian).
+## Hardware readings
 
-Requires a recent Omarchy Quickshell shell with `qs.Ui`. No network access, extra packages, accounts or background service. All animation is local QML.
+Zephir 1.4 reads `/sys/class/hwmon` every two seconds while its panel is open, using Python 3 (standard library only). It displays the fastest exposed fan and prefers CPU temperatures (`coretemp`, `k10temp`, `zenpower`, `cpu_thermal`), then ACPI, then other available temperatures. Within the preferred sensor group it displays the highest reading. Temperature and RPM may come from different devices.
 
-## Install
+The rotor follows the measured RPM (one revolution takes `60000 / RPM` milliseconds, rounded to the nearest millisecond). Fast rotation can appear slower or stationary because of display refresh sampling. Omarchy's disabled animations setting is respected.
+
+There are no manual speed controls. **Zephir only reads sensors; it does not change the physical fan speed.** Zero RPM stops the rotor. Missing RPM displays “RPM unavailable” and leaves the rotor still; missing temperatures display “unavailable”. Many laptops, including some HP models, expose temperatures without exposing fan RPM. Zephir never estimates RPM from temperature or loads hardware drivers.
+
+No network requests, account, extra Python packages, or persistent background service. Requires a recent Omarchy Quickshell shell with `qs.Ui` and Python 3.
+
+## Install or update
 
 ```sh
 omarchy plugin add https://github.com/Kryst-0/omarchy-zephir.git --enable
+# For an existing git-managed install:
+omarchy plugin update krysto.zephir
 ```
 
 ## Remove
@@ -18,7 +26,15 @@ omarchy plugin add https://github.com/Kryst-0/omarchy-zephir.git --enable
 omarchy plugin remove krysto.zephir
 ```
 
-Click the fan icon to open the panel; Escape closes it. Use the controls inside to change the design and speed.
+Escape closes the panel. Sensors and caption timers stop when it closes.
+
+## Validation
+
+```sh
+omarchy plugin validate .
+python3 -m unittest discover -s tests -v
+python3 sensors.py
+```
 
 ## License
 

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "id": "krysto.zephir",
   "name": "Zephir",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "author": "Krysto",
   "license": "MIT",
-  "description": "A little animated desk fan in your bar.",
+  "description": "Six animated fans synchronized to Linux fan RPM, with live temperature and rotating captions.",
   "kinds": [
     "bar-widget"
   ],
@@ -14,7 +14,7 @@
   },
   "barWidget": {
     "displayName": "Zephir",
-    "description": "Open a spinning fan",
+    "description": "Live fan RPM and CPU temperature with six fan designs",
     "category": "Utilities",
     "defaultSection": "right",
     "allowMultiple": false

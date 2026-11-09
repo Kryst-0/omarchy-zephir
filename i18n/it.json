@@ -16,5 +16,9 @@
   "joke.next": "Altra battuta",
   "pedestal": "A piantana",
   "ceiling": "Da soffitto",
-  "turbine": "Turbo"
+  "turbine": "Turbo",
+  "sensor.temperature": "Temperatura: %1",
+  "sensor.unavailable": "non disponibile",
+  "sensor.rpm": "Ventola: %1 RPM",
+  "sensor.noRpm": "RPM non disponibili"
 }

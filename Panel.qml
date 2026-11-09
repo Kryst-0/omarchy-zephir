@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell.Io
 import qs.Commons as Commons
 import qs.Ui as Ui
 
@@ -8,8 +9,11 @@ Ui.Panel {
     ipcTarget: "krysto.zephir"
     implicitWidth: button.implicitWidth
     implicitHeight: button.implicitHeight
-    property bool spinning: true
-    property int speed: 2
+    property int fanRpm: -1
+    property real temperature: NaN
+    function refreshSensors() {
+        if (opened && !sensorProcess.running) sensorProcess.running = true
+    }
     property int fanType: 0
     readonly property var fanModels: ["desk", "retro", "industrial", "pedestal", "ceiling", "turbine"]
     property int jokeIndex: 0
@@ -17,7 +21,37 @@ Ui.Panel {
     function nextJoke() { jokeIndex = (jokeIndex + 1) % jokeKeys.length }
     readonly property int bladeCount: fanType === 1 ? 4 : fanType === 2 ? 6 : fanType === 4 ? 5 : fanType === 5 ? 9 : 3
     Commons.Translations { id: strings; directory: Qt.resolvedUrl("i18n") }
-    onOpenedChanged: if (opened) spinning = true
+    onOpenedChanged: {
+        fanRpm = -1
+        temperature = NaN
+        if (opened) refreshSensors()
+    }
+    Timer {
+        interval: 2000
+        repeat: true
+        running: root.opened
+        onTriggered: root.refreshSensors()
+    }
+    Process {
+        id: sensorProcess
+        command: ["python3", Qt.resolvedUrl("sensors.py").toString().replace(/^file:\/\//, "")]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.fanRpm = -1
+                root.temperature = NaN
+                try {
+                    var data = JSON.parse(text)
+                    if (typeof data.rpm === "number" && Number.isInteger(data.rpm) && data.rpm >= 0 && data.rpm <= 100000)
+                        root.fanRpm = data.rpm
+                    if (typeof data.temperature === "number" && isFinite(data.temperature) && data.temperature >= -20 && data.temperature <= 150)
+                        root.temperature = data.temperature
+                } catch (e) { console.warn("Zephir: invalid sensor response") }
+            }
+        }
+        onExited: function(code, status) {
+            if (code !== 0) { root.fanRpm = -1; root.temperature = NaN }
+        }
+    }
 
     Timer {
         interval: 5000
@@ -43,7 +77,7 @@ Ui.Panel {
         open: root.opened
         focusTarget: panel.loadedContent
         contentWidth: Commons.Style.space(290)
-        contentHeight: Commons.Style.space(445)
+        contentHeight: Commons.Style.space(470)
         content: FocusScope {
             anchors.fill: parent
             Keys.onEscapePressed: root.close()
@@ -170,10 +204,10 @@ Ui.Panel {
                             NumberAnimation on rotation {
                                 from: 0
                                 to: 360
-                                duration: Commons.Style.duration(root.speed === 1 ? 360 : root.speed === 2 ? 240 : 150)
+                                duration: Commons.Style.duration(root.fanRpm > 0 ? Math.max(1, Math.round(60000 / root.fanRpm)) : 1000)
                                 loops: Animation.Infinite
                                 easing.type: Easing.Linear
-                                running: root.opened && root.spinning && Commons.Style.duration(160) > 0
+                                running: root.opened && root.fanRpm > 0 && Commons.Style.duration(160) > 0
                             }
                         }
                         Repeater {
@@ -223,22 +257,24 @@ Ui.Panel {
                         }
                     }
                 }
-                Row {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: Commons.Style.space(6)
-                    Ui.Button {
-                        text: strings.t(root.spinning ? "pause" : "start")
-                        onClicked: root.spinning = !root.spinning
-                    }
-                    Repeater {
-                        model: 3
-                        Ui.Button {
-                            required property int index
-                            text: Commons.I18n.formatNumber(index + 1)
-                            selected: root.speed === index + 1
-                            onClicked: { root.speed = index + 1; root.spinning = true }
-                        }
-                    }
+                Text {
+                    width: parent.width
+                    textFormat: Text.PlainText
+                    text: strings.t("sensor.temperature").arg(isFinite(root.temperature) ? Commons.I18n.formatNumber(root.temperature, 1) + " °C" : strings.t("sensor.unavailable"))
+                    color: Commons.Color.foreground
+                    font.family: Commons.Style.font.family
+                    font.pixelSize: Commons.Style.font.body
+                    horizontalAlignment: Text.AlignHCenter
+                }
+                Text {
+                    width: parent.width
+                    textFormat: Text.PlainText
+                    text: root.fanRpm >= 0 ? strings.t("sensor.rpm").arg(Commons.I18n.formatNumber(root.fanRpm)) : strings.t("sensor.noRpm")
+                    color: root.fanRpm >= 0 ? Commons.Color.foreground : Commons.Color.muted
+                    font.family: Commons.Style.font.family
+                    font.pixelSize: Commons.Style.font.body
+                    wrapMode: Text.Wrap
+                    horizontalAlignment: Text.AlignHCenter
                 }
             }
         }
