@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "krysto.zephir",
+  "name": "Zephir",
+  "version": "1.3.0",
+  "author": "Krysto",
+  "license": "MIT",
+  "description": "A little animated desk fan in your bar.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Zephir",
+    "description": "Open a spinning fan",
+    "category": "Utilities",
+    "defaultSection": "right",
+    "allowMultiple": false
+  },
+  "repository": "https://github.com/Kryst-0/omarchy-zephir"
+}
